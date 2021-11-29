@@ -12,8 +12,10 @@ const SequlizeStore = require("connect-session-sequelize")(session.Store);
 
 //set up the actual session
 const sess = {
-  secret: "super secret secret",
-  cookie: {},
+  secret: process.env.SESSION_SECRET,
+  cookie: {
+    maxAge:1000*60*60*2
+  },
   resave: false,
   saveUninitialized: true,
   store: new SequlizeStore({
@@ -34,8 +36,9 @@ app.use(session(sess));
 app.use("/", controller);
 
 //set handlebars as render engine
-app.engine("handlebars", exphbs());
-app.set("view engine", "handlebars");
+const hbs = exphbs.create({});
+app.engine('handlebars', hbs.engine);
+app.set('view engine', 'handlebars');
 
 sequelize.sync({ force: false }).then(() => {
   app.listen(PORT, () => console.log(`Now listening on port ${PORT}`));
